@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <title>EliteChat</title>
+
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:Arial, sans-serif;
+    }
+
+    body{
+      background:#0f0f0f;
+      color:white;
+      height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+    }
+
+    .container{
+      width:90%;
+      max-width:400px;
+      background:#1a1a1a;
+      padding:30px;
+      border-radius:20px;
+      text-align:center;
+      box-shadow:0 0 20px rgba(255,255,255,0.08);
+    }
+
+    h1{
+      font-size:35px;
+      margin-bottom:10px;
+      color:#ff9800;
+    }
+
+    p{
+      color:#aaa;
+      margin-bottom:25px;
+    }
+
+    button{
+      width:100%;
+      padding:15px;
+      border:none;
+      border-radius:12px;
+      background:#ff9800;
+      color:black;
+      font-size:16px;
+      font-weight:bold;
+      cursor:pointer;
+      margin-top:10px;
+    }
+
+    button:hover{
+      opacity:0.9;
+    }
+
+    input{
+      width:100%;
+      padding:15px;
+      border:none;
+      border-radius:12px;
+      margin-top:20px;
+      background:#2a2a2a;
+      color:white;
+      font-size:16px;
+      text-align:center;
+      text-transform:uppercase;
+    }
+
+    .codeBox{
+      margin-top:20px;
+      background:#2a2a2a;
+      padding:15px;
+      border-radius:12px;
+      font-size:24px;
+      font-weight:bold;
+      letter-spacing:3px;
+      color:#00ff88;
+      display:none;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <h1>EliteChat</h1>
+
+    <p>Private Secret Chat Rooms</p>
+
+    <button onclick="createRoom()">
+      Create Secret Chat
+    </button>
+
+    <div class="codeBox" id="codeBox"></div>
+
+    <input
+      type="text"
+      id="roomInput"
+      placeholder="ENTER SECRET CODE"
+    />
+
+    <button onclick="joinRoom()">
+      Join Chat
+    </button>
+
+  </div>
+
+  <script>
+
+    function generateCode(length = 6) {
+
+      const chars =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+      let result = "";
+
+      for(let i = 0; i < length; i++) {
+
+        result += chars.charAt(
+          Math.floor(Math.random() * chars.length)
+        );
+
+      }
+
+      return result;
+    }
+
+    function createRoom() {
+
+      const roomCode = generateCode();
+
+      document.getElementById("codeBox").style.display = "block";
+
+      document.getElementById("codeBox").innerText =
+        roomCode;
+
+      setTimeout(() => {
+
+        window.location.href =
+          `chat.html?room=${roomCode}`;
+
+      }, 1500);
+
+    }
+
+    function joinRoom() {
+
+      const room =
+        document.getElementById("roomInput")
+        .value
+        .trim()
+        .toUpperCase();
+
+      if(room === "") {
+
+        alert("Enter Secret Code");
+
+        return;
+      }
+
+      window.location.href =
+        `chat.html?room=${room}`;
+
+    }
+
+  </script>
+
+</body>
+</html>
