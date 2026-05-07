@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+
+  <meta name="viewport"
+  content="width=device-width, initial-scale=1.0"/>
+
+  <title>EliteChat</title>
+
+  <style>
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:Arial,sans-serif;
+    }
+
+    body{
+      background:#0f0f0f;
+      color:white;
+      height:100vh;
+      display:flex;
+      flex-direction:column;
+    }
+
+    .topBar{
+      background:#1a1a1a;
+      padding:15px;
+      border-bottom:1px solid #333;
+
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+
+    .roomInfo{
+      display:flex;
+      flex-direction:column;
+    }
+
+    .title{
+      color:#ff9800;
+      font-size:22px;
+      font-weight:bold;
+    }
+
+    .roomCode{
+      color:#00ff88;
+      font-size:13px;
+      margin-top:4px;
+      letter-spacing:2px;
+    }
+
+    .status{
+      color:#999;
+      font-size:12px;
+      margin-top:4px;
+    }
+
+    .topButtons{
+      display:flex;
+      gap:10px;
+    }
+
+    .leaveBtn,
+    .shareBtn{
+      border:none;
+      color:white;
+      padding:10px 15px;
+      border-radius:10px;
+      cursor:pointer;
+      font-weight:bold;
+    }
+
+    .leaveBtn{
+      background:#ff4444;
+    }
+
+    .shareBtn{
+      background:#ff9800;
+      color:black;
+    }
+
+    .chatBox{
+      flex:1;
+      overflow-y:auto;
+      padding:15px;
+
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .message{
+      padding:12px;
+      border-radius:15px;
+      max-width:80%;
+      word-wrap:break-word;
+
+      animation:fadeIn 0.2s ease;
+      transition:0.2s;
+    }
+
+    .message:active{
+      transform:scale(0.98);
+    }
+
+    .myMessage{
+      background:#ff9800;
+      color:black;
+      align-self:flex-end;
+      border-bottom-right-radius:5px;
+    }
+
+    .otherMessage{
+      background:#1f1f1f;
+      color:white;
+      align-self:flex-start;
+      border-bottom-left-radius:5px;
+    }
+
+    .messageName{
+      font-size:12px;
+      font-weight:bold;
+      margin-bottom:5px;
+      opacity:0.8;
+    }
+
+    .replyBox{
+      background:#2e2e2e;
+      color:#00ff88;
+      padding:6px;
+      border-radius:8px;
+      font-size:12px;
+      margin-bottom:6px;
+    }
+
+    .messageText{
+      font-size:15px;
+    }
+
+    .messageTime{
+      font-size:10px;
+      margin-top:6px;
+      text-align:right;
+      opacity:0.7;
+    }
+
+    .seenStatus{
+      font-size:10px;
+      margin-top:2px;
+      text-align:right;
+      opacity:0.8;
+    }
+
+    .replyPreview{
+      background:#222;
+      color:#00ff88;
+      padding:10px;
+      display:none;
+      font-size:13px;
+      border-top:1px solid #333;
+    }
+
+    .inputArea{
+      display:flex;
+      gap:10px;
+      padding:10px;
+      background:#1a1a1a;
+      border-top:1px solid #333;
+    }
+
+    input{
+      flex:1;
+      padding:15px;
+      border:none;
+      border-radius:15px;
+      background:#2a2a2a;
+      color:white;
+      font-size:15px;
+      outline:none;
+    }
+
+    .sendBtn{
+      background:#ff9800;
+      color:black;
+      border:none;
+      padding:15px 20px;
+      border-radius:15px;
+      cursor:pointer;
+      font-weight:bold;
+    }
+
+    .instructions{
+      background:#161616;
+      padding:12px;
+      font-size:11px;
+      color:#888;
+      text-align:center;
+      border-top:1px solid #333;
+      line-height:1.5;
+    }
+
+    @keyframes fadeIn{
+
+      from{
+        opacity:0;
+        transform:translateY(10px);
+      }
+
+      to{
+        opacity:1;
+        transform:translateY(0);
+      }
+
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- Top -->
+
+  <div class="topBar">
+
+    <div class="roomInfo">
+
+      <div class="title">
+        EliteChat
+      </div>
+
+      <div class="roomCode"
+      id="roomCode"></div>
+
+      <div class="status"
+      id="statusText">
+
+        Waiting for user...
+
+      </div>
+
+    </div>
+
+    <div class="topButtons">
+
+      <button class="shareBtn"
+      onclick="shareRoom()">
+
+        Share
+
+      </button>
+
+      <button class="leaveBtn"
+      onclick="leaveChat()">
+
+        Leave
+
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- Chat -->
+
+  <div class="chatBox"
+  id="chatBox"></div>
+
+  <!-- Reply Preview -->
+
+  <div class="replyPreview"
+  id="replyPreview"></div>
+
+  <!-- Input -->
+
+  <div class="inputArea">
+
+    <input
+      type="text"
+      id="messageInput"
+      placeholder="Type message..."
+      oninput="typingStatus()"
+    />
+
+    <button class="sendBtn"
+    onclick="sendMessage()">
+
+      Send
+
+    </button>
+
+  </div>
+
+  <!-- Instructions -->
+
+  <div class="instructions">
+
+    You can use this website to
+    chat secretly.<br>
+
+    When you close the site,
+    all chats are deleted.<br>
+
+    Private anonymous
+    communication system.<br>
+
+    Swipe message right to reply.<br>
+
+    Share your secret code
+    to connect easily.<br><br>
+
+    Developed By Tarun<br>
+    @Testing Purposes
+
+  </div>
+
+  <!-- Firebase -->
+
+  <script type="module">
+
+    import { initializeApp }
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+    import {
+
+      getDatabase,
+      ref,
+      push,
+      set,
+      onValue,
+      remove,
+      get
+
+    }
+
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    // Firebase Config
+
+    const firebaseConfig = {
+
+      apiKey:
+      "AIzaSyDrp-ppWgECF4A8fFiekfCjzV0kpRwvNNg",
+
+      authDomain:
+      "elitechat-cd6b8.firebaseapp.com",
+
+      databaseURL:
+      "https://elitechat-cd6b8-default-rtdb.asia-southeast1.firebasedatabase.app",
+
+      projectId:
+      "elitechat-cd6b8",
+
+      storageBucket:
+      "elitechat-cd6b8.firebasestorage.app",
+
+      messagingSenderId:
+      "303278626333",
+
+      appId:
+      "1:303278626333:web:2468067f17b3ad297c18f4"
+
+    };
+
+    // Firebase Start
+
+    const app =
+    initializeApp(firebaseConfig);
+
+    const db =
+    getDatabase(app);
+
+    // Room
+
+    const params =
+    new URLSearchParams(window.location.search);
+
+    const room =
+    params.get("room");
+
+    const userName =
+    localStorage.getItem("eliteName");
+
+    document.getElementById("roomCode")
+    .innerText =
+    room;
+
+    // Firebase Refs
+
+    const roomRef =
+    ref(db, "rooms/" + room);
+
+    const messagesRef =
+    ref(db,
+    "rooms/" + room + "/messages");
+
+    const typingRef =
+    ref(db,
+    "rooms/" + room + "/typing");
+
+    const usersRef =
+    ref(db,
+    "rooms/" + room + "/users");
+
+    // Check Room Exists
+
+    const roomCheck =
+    await get(roomRef);
+
+    if(!roomCheck.exists()){
+
+      alert("Room Expired");
+
+      window.location.href =
+      "index.html";
+
+    }
+
+    // Add User
+
+    await set(
+      ref(
+        db,
+        "rooms/" +
+        room +
+        "/users/" +
+        userName
+      ),
+      true
+    );
+
+    // Reply
+
+    let replyText = "";
+
+    // Time
+
+    function getTime(){
+
+      const now =
+      new Date();
+
+      return now.toLocaleTimeString([],{
+
+        hour:'2-digit',
+        minute:'2-digit'
+
+      });
+
+    }
+
+    // User Status
+
+    function updateStatus(count){
+
+      const statusText =
+      document.getElementById(
+      "statusText");
+
+      if(count >= 2){
+
+        statusText.innerText =
+        "User Connected";
+
+      }
+
+      else{
+
+        statusText.innerText =
+        "Waiting for user...";
+
+      }
+
+    }
+
+    onValue(usersRef,
+    (snapshot)=>{
+
+      let count = 0;
+
+      snapshot.forEach(()=>{
+        count++;
+      });
+
+      updateStatus(count);
+
+    });
+
+    // Send Message
+
+    window.sendMessage =
+    async function(){
+
+      const input =
+      document.getElementById(
+      "messageInput");
+
+      const text =
+      input.value.trim();
+
+      if(text === "") return;
+
+      const msgRef =
+      push(messagesRef);
+
+      await set(msgRef,{
+
+        name:userName,
+
+        text:text,
+
+        time:getTime(),
+
+        reply:replyText,
+
+        seen:false
+
+      });
+
+      input.value = "";
+
+      replyText = "";
+
+      document.getElementById(
+      "replyPreview")
+
+      .style.display =
+      "none";
+
+      set(typingRef, "");
+
+    }
+
+    // Messages
+
+    onValue(messagesRef,
+    (snapshot)=>{
+
+      const chatBox =
+      document.getElementById(
+      "chatBox");
+
+      chatBox.innerHTML = "";
+
+      snapshot.forEach((child)=>{
+
+        const data =
+        child.val();
+
+        // Seen
+
+        if(
+          data.name !== userName
+          &&
+          !data.seen
+        ){
+
+          set(
+            ref(
+              db,
+              "rooms/" +
+              room +
+              "/messages/" +
+              child.key +
+              "/seen"
+            ),
+            true
+          );
+
+        }
+
+        const div =
+        document.createElement("div");
+
+        div.className =
+        data.name === userName
+
+        ? "message myMessage"
+
+        : "message otherMessage";
+
+        let replyHTML = "";
+
+        if(data.reply){
+
+          replyHTML =
+
+          `<div class="replyBox">
+
+            ${data.reply}
+
+          </div>`;
+
+        }
+
+        div.innerHTML = `
+
+          <div class="messageName">
+
+            ${data.name}
+
+          </div>
+
+          ${replyHTML}
+
+          <div class="messageText">
+
+            ${data.text}
+
+          </div>
+
+          <div class="messageTime">
+
+            ${data.time}
+
+          </div>
+
+          <div class="seenStatus">
+
+            ${data.name === userName
+
+            ? (data.seen
+            ? '✓✓ Seen'
+            : '✓ Sent')
+
+            : ''}
+
+          </div>
+
+        `;
+
+        // Tap Reply
+
+        div.onclick = ()=>{
+
+          replyText =
+          data.text;
+
+          const preview =
+          document.getElementById(
+          "replyPreview");
+
+          preview.style.display =
+          "block";
+
+          preview.innerText =
+          "Replying to: " +
+          data.text;
+
+        }
+
+        // Swipe Reply
+
+        let startX = 0;
+
+        div.addEventListener(
+        "touchstart",
+        (e)=>{
+
+          startX =
+          e.touches[0].clientX;
+
+        });
+
+        div.addEventListener(
+        "touchend",
+        (e)=>{
+
+          let endX =
+          e.changedTouches[0]
+          .clientX;
+
+          let diff =
+          endX - startX;
+
+          if(diff > 80){
+
+            replyText =
+            data.text;
+
+            const preview =
+            document.getElementById(
+            "replyPreview");
+
+            preview.style.display =
+            "block";
+
+            preview.innerText =
+            "Replying to: " +
+            data.text;
+
+          }
+
+        });
+
+        chatBox.appendChild(div);
+
+      });
+
+      chatBox.scrollTop =
+      chatBox.scrollHeight;
+
+    });
+
+    // Typing
+
+    let typingTimeout;
+
+    window.typingStatus =
+    function(){
+
+      const input =
+      document.getElementById(
+      "messageInput"
+      );
+
+      if(input.value.trim() !== ""){
+
+        set(
+          typingRef,
+          userName
+        );
+
+      }
+
+      else{
+
+        set(
+          typingRef,
+          ""
+        );
+
+      }
+
+      clearTimeout(
+      typingTimeout
+      );
+
+      typingTimeout =
+      setTimeout(()=>{
+
+        set(
+          typingRef,
+          ""
+        );
+
+      },1000);
+
+    }
+
+    // Typing Listener
+
+    onValue(typingRef,
+    (snapshot)=>{
+
+      const typingUser =
+      snapshot.val();
+
+      const statusText =
+      document.getElementById(
+      "statusText"
+      );
+
+      if(
+        typingUser &&
+        typingUser !== userName
+      ){
+
+        statusText.innerText =
+        typingUser +
+        " is typing...";
+
+      }
+
+      else{
+
+        onValue(usersRef,
+        (userSnap)=>{
+
+          let count = 0;
+
+          userSnap.forEach(()=>{
+            count++;
+          });
+
+          updateStatus(count);
+
+        });
+
+      }
+
+    });
+
+    // Share
+
+    window.shareRoom =
+    async function(){
+
+      const shareText =
+
+`Join my secret chat on EliteChat
+
+https://eliteappssite.github.io/elitechat/
+
+Secret Code: ${room}`;
+
+      if(navigator.share){
+
+        navigator.share({
+
+          title:"EliteChat",
+
+          text:shareText
+
+        });
+
+      }
+
+      else{
+
+        navigator.clipboard.writeText(
+          shareText
+        );
+
+        alert("Share text copied");
+
+      }
+
+    }
+
+    // Leave
+
+    window.leaveChat =
+    async function(){
+
+      await remove(
+        ref(
+          db,
+          "rooms/" +
+          room +
+          "/users/" +
+          userName
+        )
+      );
+
+      const users =
+      await get(usersRef);
+
+      if(!users.exists()){
+
+        await remove(roomRef);
+
+      }
+
+      window.location.href =
+      "index.html";
+
+    }
+
+    // Auto Delete
+
+    window.onbeforeunload =
+    async function(){
+
+      await remove(
+        ref(
+          db,
+          "rooms/" +
+          room +
+          "/users/" +
+          userName
+        )
+      );
+
+    }
+
+  </script>
+
+</body>
+</html>
