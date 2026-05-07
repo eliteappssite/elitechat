@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+
+  <meta name="viewport"
+  content="width=device-width, initial-scale=1.0"/>
+
+  <title>EliteChat</title>
+
+  <style>
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:Arial,sans-serif;
+    }
+
+    body{
+      background:#0f0f0f;
+      color:white;
+
+      min-height:100vh;
+
+      display:flex;
+      justify-content:center;
+      align-items:center;
+
+      padding:20px;
+    }
+
+    .container{
+
+      width:100%;
+      max-width:420px;
+
+      background:#1a1a1a;
+
+      border-radius:25px;
+
+      padding:30px;
+
+      box-shadow:
+      0 0 30px rgba(255,152,0,0.15);
+
+      text-align:center;
+
+    }
+
+    h1{
+
+      font-size:42px;
+
+      color:#ff9800;
+
+      margin-bottom:10px;
+
+    }
+
+    .subtitle{
+
+      color:#999;
+
+      margin-bottom:25px;
+
+      line-height:1.5;
+
+      font-size:14px;
+
+    }
+
+    .sectionTitle{
+
+      margin-top:20px;
+
+      margin-bottom:10px;
+
+      color:#00ff88;
+
+      font-size:15px;
+
+      font-weight:bold;
+
+      text-align:left;
+
+    }
+
+    input{
+
+      width:100%;
+
+      padding:16px;
+
+      border:none;
+
+      border-radius:15px;
+
+      background:#2a2a2a;
+
+      color:white;
+
+      font-size:15px;
+
+      outline:none;
+
+      margin-top:10px;
+
+      text-transform:none;
+
+    }
+
+    .codeInput{
+
+      text-transform:uppercase;
+      text-align:center;
+      letter-spacing:2px;
+
+    }
+
+    button{
+
+      width:100%;
+
+      padding:16px;
+
+      border:none;
+
+      border-radius:15px;
+
+      background:#ff9800;
+
+      color:black;
+
+      font-size:16px;
+
+      font-weight:bold;
+
+      cursor:pointer;
+
+      transition:0.3s;
+
+      margin-top:15px;
+
+    }
+
+    button:hover{
+
+      opacity:0.9;
+
+      transform:scale(1.02);
+
+    }
+
+    .roomCode{
+
+      margin-top:20px;
+
+      background:#222;
+
+      border-radius:15px;
+
+      padding:18px;
+
+      color:#00ff88;
+
+      font-size:28px;
+
+      font-weight:bold;
+
+      letter-spacing:4px;
+
+      display:none;
+
+    }
+
+    .divider{
+
+      margin:30px 0;
+
+      color:#555;
+
+      position:relative;
+
+      font-size:14px;
+
+    }
+
+    .divider::before{
+
+      content:"";
+
+      position:absolute;
+
+      left:0;
+      top:50%;
+
+      width:40%;
+      height:1px;
+
+      background:#333;
+
+    }
+
+    .divider::after{
+
+      content:"";
+
+      position:absolute;
+
+      right:0;
+      top:50%;
+
+      width:40%;
+      height:1px;
+
+      background:#333;
+
+    }
+
+    .instructions{
+
+      margin-top:30px;
+
+      background:#161616;
+
+      border-radius:15px;
+
+      padding:15px;
+
+      font-size:12px;
+
+      color:#888;
+
+      line-height:1.7;
+
+      text-align:left;
+
+    }
+
+    .footer{
+
+      margin-top:20px;
+
+      color:#666;
+
+      font-size:12px;
+
+      text-align:center;
+
+      line-height:1.5;
+
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <h1>EliteChat</h1>
+
+    <div class="subtitle">
+
+      Private Temporary Anonymous
+      Secret Chat Platform
+
+    </div>
+
+    <!-- Create -->
+
+    <div class="sectionTitle">
+
+      Create Secret Chat
+
+    </div>
+
+    <input
+      type="text"
+      id="createName"
+      placeholder="Enter Your Name"
+    />
+
+    <button onclick="createRoom()">
+
+      Generate Secret Chat
+
+    </button>
+
+    <div class="roomCode"
+    id="roomCode"></div>
+
+    <!-- Divider -->
+
+    <div class="divider">
+
+      OR
+
+    </div>
+
+    <!-- Join -->
+
+    <div class="sectionTitle">
+
+      Join Existing Chat
+
+    </div>
+
+    <input
+      type="text"
+      id="joinName"
+      placeholder="Enter Your Name"
+    />
+
+    <input
+      type="text"
+      id="joinCode"
+      class="codeInput"
+      maxlength="6"
+      placeholder="ENTER SECRET CODE"
+    />
+
+    <button onclick="joinRoom()">
+
+      Join Chat
+
+    </button>
+
+    <!-- Instructions -->
+
+    <div class="instructions">
+
+      • Use this website to chat secretly.<br>
+
+      • All chats automatically delete
+      when users leave.<br>
+
+      • Temporary anonymous
+      communication system.<br>
+
+      • Share your secret code
+      to connect instantly.<br>
+
+      • No login required.<br>
+
+      • Private realtime chat system.
+
+    </div>
+
+    <!-- Footer -->
+
+    <div class="footer">
+
+      Developed By Tarun<br>
+      @Testing Purposes
+
+    </div>
+
+  </div>
+
+  <!-- Firebase -->
+
+  <script type="module">
+
+    import { initializeApp }
+
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+    import {
+
+      getDatabase,
+      ref,
+      set,
+      get
+
+    }
+
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    // Firebase Config
+
+    const firebaseConfig = {
+
+      apiKey:
+      "AIzaSyDrp-ppWgECF4A8fFiekfCjzV0kpRwvNNg",
+
+      authDomain:
+      "elitechat-cd6b8.firebaseapp.com",
+
+      databaseURL:
+      "https://elitechat-cd6b8-default-rtdb.asia-southeast1.firebasedatabase.app",
+
+      projectId:
+      "elitechat-cd6b8",
+
+      storageBucket:
+      "elitechat-cd6b8.firebasestorage.app",
+
+      messagingSenderId:
+      "303278626333",
+
+      appId:
+      "1:303278626333:web:2468067f17b3ad297c18f4"
+
+    };
+
+    // Initialize Firebase
+
+    const app =
+    initializeApp(firebaseConfig);
+
+    const db =
+    getDatabase(app);
+
+    // Generate Code
+
+    function generateCode(length = 6){
+
+      const chars =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+      let result = "";
+
+      for(let i = 0; i < length; i++){
+
+        result += chars.charAt(
+          Math.floor(Math.random() * chars.length)
+        );
+
+      }
+
+      return result;
+
+    }
+
+    // Create Room
+
+    window.createRoom =
+    async function(){
+
+      const name =
+      document.getElementById(
+      "createName")
+
+      .value.trim();
+
+      if(name === ""){
+
+        alert("Enter Your Name");
+
+        return;
+
+      }
+
+      const roomCode =
+      generateCode();
+
+      // Save Name
+
+      localStorage.setItem(
+        "eliteName",
+        name
+      );
+
+      // Create Firebase Room
+
+      await set(
+        ref(
+          db,
+          "rooms/" + roomCode
+        ),
+        {
+          createdAt:Date.now()
+        }
+      );
+
+      // Show Code
+
+      const codeBox =
+      document.getElementById(
+      "roomCode");
+
+      codeBox.style.display =
+      "block";
+
+      codeBox.innerText =
+      roomCode;
+
+      // Redirect
+
+      setTimeout(()=>{
+
+        window.location.href =
+        `chat.html?room=${roomCode}`;
+
+      },1500);
+
+    }
+
+    // Join Room
+
+    window.joinRoom =
+    async function(){
+
+      const name =
+      document.getElementById(
+      "joinName")
+
+      .value.trim();
+
+      const roomCode =
+      document.getElementById(
+      "joinCode")
+
+      .value
+      .trim()
+      .toUpperCase();
+
+      if(name === ""){
+
+        alert("Enter Your Name");
+
+        return;
+
+      }
+
+      if(roomCode === ""){
+
+        alert("Enter Secret Code");
+
+        return;
+
+      }
+
+      // Check Room Exists
+
+      const snapshot =
+      await get(
+        ref(
+          db,
+          "rooms/" + roomCode
+        )
+      );
+
+      if(snapshot.exists()){
+
+        localStorage.setItem(
+          "eliteName",
+          name
+        );
+
+        window.location.href =
+        `chat.html?room=${roomCode}`;
+
+      }
+
+      else{
+
+        alert("Room Not Found");
+
+      }
+
+    }
+
+  </script>
+
+</body>
+</html>
